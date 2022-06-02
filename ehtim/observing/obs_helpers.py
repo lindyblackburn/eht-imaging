@@ -41,6 +41,7 @@ import scipy.ndimage as nd
 import scipy.spatial.distance
 import copy
 import sys
+import spiceypy as sp
 
 import ehtim.const_def as ehc
 
@@ -53,6 +54,8 @@ warnings.filterwarnings("ignore", message="divide by zero encountered in double_
 # Other Functions
 ##################################################################################################
 
+frame = "J2000" #ECI frame 
+cb_id = "Earth" 
 
 def compute_uv_coordinates(array, site1, site2, time, mjd, ra, dec, rf, timetype='UTC',
                            elevmin=ehc.ELEV_LOW,  elevmax=ehc.ELEV_HIGH, fix_theta_GMST=False):
@@ -105,7 +108,7 @@ def compute_uv_coordinates(array, site1, site2, time, mjd, ra, dec, rf, timetype
 
     # TODO speed up?
     # use spacecraft ephemeris to get position of site 1
-    spacemask1 = [np.all(coord == (0., 0., 0.)) for coord in coord1]
+    spacemask1 = [(np.all(coord == (0., 0., 0.)) or np.all(np.isnan(coord))) for coord in coord1]
     if np.any(spacemask1):
         if timetype == 'GMST':
             raise Exception("Spacecraft ephemeris only work with UTC!")
@@ -139,8 +142,17 @@ def compute_uv_coordinates(array, site1, site2, time, mjd, ra, dec, rf, timetype
                 c1 = sat.represent_as('cartesian')
                 c1 = np.array((c1.x.to_value(units.m), c1.y.to_value(units.m), c1.z.to_value(units.m)))
             #if using a supported custom object in SSLOCS
-            else:
+            elif array.ephem[site1space] == -2:
                 c1 = np.array(FUNCDICT[site1space](Time_now))
+            #if using a spiceypy ephemeris
+            elif array.ephem[site1space] == -3:
+                spdto = site1space_dtolist[k]
+                epoch_et = sp.str2et(spdto.strftime('%Y-%b-%d %H:%M:%S.%f') + " UTC")
+                sc_spice_id = site1space.split(':')[0]        
+                state_at_epoch, lt_corr = sp.spkezr(sc_spice_id, epoch_et, frame, "NONE", cb_id)
+                c1 = state_at_epoch[:3]*1000
+            else:
+                print("Unknown ephemeris type! Should never reach this state.")
             coord1space.append(c1)
         coord1space = np.array(coord1space)
 
@@ -179,8 +191,17 @@ def compute_uv_coordinates(array, site1, site2, time, mjd, ra, dec, rf, timetype
                 c2 = sat.represent_as('cartesian')
                 c2 = np.array((c2.x.to_value(units.m), c2.y.to_value(units.m), c2.z.to_value(units.m)))
             #if using a supported custom object in SSLOCS
-            else:
+            elif array.ephem[site2space] == -2:
                 c2 = np.array(FUNCDICT[site2space](Time_now))
+            #if using a spiceypy ephemeris
+            elif array.ephem[site2space] == -3:
+                spdto = site2space_dtolist[k]
+                epoch_et = sp.str2et(spdto.strftime('%Y-%b-%d %H:%M:%S.%f') + " UTC")
+                sc_spice_id = site2space.split(':')[0]
+                state_at_epoch, lt_corr = sp.spkezr(sc_spice_id, epoch_et, frame, "NONE", cb_id)
+                c2 = state_at_epoch[:3]*1000
+            else:
+                print("Unknown ephemeris type! Should never reach this state.")
             coord2space.append(c2)
         coord2space = np.array(coord2space)
 

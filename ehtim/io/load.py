@@ -41,6 +41,10 @@ import ehtim.observing
 
 import ehtim.io.oifits
 import ehtim.const_def as ehc
+import spiceypy as sp
+
+
+from glob import glob
 
 from astropy.coordinates import solar_system_ephemeris
 
@@ -838,6 +842,17 @@ def load_array_txt(filename, ephemdir='ephemeris'):
                 elif sitename in ehc.SSLOCS:
                     edata[sitename] = -2
                     print("Using location computed from solar system ephemeris")
+                elif sitename[0] == '-':
+                    print("Will attempt to use spiceypy ephemeris!")
+                    print("Hunting for leap second kernel in ephemeris directory.")
+                    tlss = glob(path+'/'+ephemdir+'/*tls')                
+                    print("Found "+str(len(tlss))+", using "+tlss[-1])
+                    sp.furnsh(tlss[-1])
+                    ephemname = sitename.split(':')[-1]
+                    ephempath = path  + '/' + ephemdir + '/' + ephemname +'.bsp'#TODO ephempath shouldn't always start with path
+                    print("Loading spacecraft ephemeris: "+ephempath)
+                    sp.furnsh(ephempath)
+                    edata[sitename] = -3
                 else:
                     raise Exception ('no ephemeris file %s or not a recognized object! ' % ephempath)
 

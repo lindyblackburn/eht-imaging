@@ -46,21 +46,22 @@ class Array(object):
                          Space antennas have x=y=z=0 in the tarr
     """
 
-    def __init__(self, tarr, ephem={}):
+    def __init__(self, tarr, ephem=dict()):
         self.tarr = tarr
         self.ephem = ephem
 
         # check to see if ephemeris is correct
         for line in self.tarr:
-            if np.any(np.isnan([line['x'], line['y'], line['z']])):
+            if np.all(np.isnan([line['x'], line['y'], line['z']])) or np.all(np.array([line['x'],line['y'],line['z']])==0):
                 sitename = str(line['site'])
                 try:
                     elen = len(ephem[sitename])
+                    if elen != 3:
+                        raise Exception('wrong ephemeris format for site %s !' % sitename)
                 except NameError:
                     raise Exception('no ephemeris for site %s !' % sitename)
-                if elen != 3:
-
-                    raise Exception('wrong ephemeris format for site %s !' % sitename)
+                except TypeError:
+                    pass
 
         # Dictionary of array indices for site names
         self.tkey = {self.tarr[i]['site']: i for i in range(len(self.tarr))}

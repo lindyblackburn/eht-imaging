@@ -45,7 +45,8 @@ if __name__ == "__main__":
                             "h5py",
                             "pandas",
                             "requests",
-                            "future"
+                            "future",
+                            "spiceypy"
                           # optional (but recommended) libraries required for some features
                           # "pynfft",   # optional (but highly recommended)
                           # "networkx", # optional, only needed if using image_agreements()
