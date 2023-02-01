@@ -22,8 +22,11 @@ import pandas as pd
 import os
 
 import ehtim as eh
-import paramsurvey
-import paramsurvey.params
+try:
+    import paramsurvey
+    import paramsurvey.params
+except:
+    print("Warning: No paramsurvey installed! Cannot use ehtim.survey")
 
 import warnings
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)

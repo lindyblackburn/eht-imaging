@@ -46,7 +46,11 @@ from functools import partial
 
 #imports from the blazarFileDownloader
 import calendar
-import requests
+try:
+    import requests
+except ImportError:
+    print("Warning: requests not installed!")
+    print("Will not be able to download MOJAVE/BUBlazar files!")
 import os
 from html.parser import HTMLParser
 #from HTMLParser import HTMLParser
