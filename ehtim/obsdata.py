@@ -4185,7 +4185,8 @@ class Obsdata(object):
             fig = plt.gcf()
             fig.savefig(export_pdf, bbox_inches='tight')
         if show:
-            plt.show(block=False)
+            #plt.show(block=False)
+            ehc.show_noblock()
 
         return x
 
@@ -4320,8 +4321,8 @@ class Obsdata(object):
             fig = plt.gcf()
             fig.savefig(export_pdf, bbox_inches='tight')
         if show:
-            plt.show(block=False)
-
+            #plt.show(block=False)
+            ehc.show_noblock()
         return x
 
     def plot_cphase(self, site1, site2, site3,
@@ -4445,7 +4446,8 @@ class Obsdata(object):
             fig = plt.gcf()
             fig.savefig(export_pdf, bbox_inches='tight')
         if show:
-            plt.show(block=False)
+            #plt.show(block=False)
+            ehc.show_noblock()
 
         return x
 
@@ -4583,7 +4585,8 @@ class Obsdata(object):
             fig = plt.gcf()
             fig.savefig(export_pdf, bbox_inches='tight')
         if show:
-            plt.show(block=False)
+            #plt.show(block=False)
+            ehc.show_noblock()
             return
         else:
             return x

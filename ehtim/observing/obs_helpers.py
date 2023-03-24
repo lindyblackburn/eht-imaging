@@ -1295,7 +1295,6 @@ class NFFTInfo(object):
                               for i in range(self.uvdim)), 'c16')
         self.pulsefac = (pulses*phases)
 
-
 class SamplerInfo(object):
     def __init__(self, order, uv, pulsefac):
         self.order = int(order)

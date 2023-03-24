@@ -1,11 +1,18 @@
 import ehtim as eh
+import multiprocessing
 from multiprocessing import set_start_method
+from multiprocessing import Pool
+
+#try:
+#    set_start_method("spawn")
+#except RuntimeError:
+#    print("context already set")
+def run_pset(pset, params_fixed):
+    ps = eh.survey.ParameterSet(pset, params_fixed)
+    ps.run()
 
 if __name__ == '__main__':
 
-    # if using multiprocessing backend and pynfft, need to set start method
-    # to ensure proper memory allocation
-    set_start_method("spawn")
 
     # Load in example image and array
     im = eh.image.load_txt('../models/avery_sgra_eofn.txt')
@@ -36,9 +43,16 @@ if __name__ == '__main__':
                                                  nproc=-1,  # use all available cores, can be changed
                                                  overwrite=True,
                                                  niter_static=1,
-                                                 SEFD_error_budget=SEFD_errs,
-                                                 ttype='nfft')
+                                                 SEFD_error_budget=SEFD_errs)
 
     psets = eh.survey.create_survey_psets(zbl=[0.6, 0.7], sys_noise=[0.01], prior_fwhm=[50])
+    args = []
+    print(len(psets))
+    
+    for i in range(2):
+        args.append([dict(psets.iloc[i]), params_fixed])
 
-    eh.survey.run_survey(psets, params_fixed)
+    with multiprocessing.get_context('spawn').Pool() as pool:
+#    with Pool() as pool:
+        res = pool.starmap(run_pset, args)
+
